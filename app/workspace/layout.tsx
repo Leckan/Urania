@@ -1,14 +1,15 @@
 import React from 'react'
 import AppSidebar from '@/components/custom/workspace/AppSidebar'
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 
 function WorkspaceLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-screen bg-slate-50">
+    <SidebarProvider>
       <AppSidebar />
-      <main className="min-w-0 flex-1">
+      <SidebarInset className="min-w-0 bg-slate-50">
         {children}
-      </main>
-    </div>
+      </SidebarInset>
+    </SidebarProvider>
   )
 }
 

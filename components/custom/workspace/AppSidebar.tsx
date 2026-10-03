@@ -4,7 +4,21 @@ import Image from "next/image";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { Bot, Compass, Plus, Sparkles } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarRail,
+  SidebarSeparator,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
 
 const agents = [
   {
@@ -38,81 +52,105 @@ function AppSidebar() {
     .join("");
 
   return (
-    <aside className="flex h-screen w-64 shrink-0 flex-col border-r border-slate-200 bg-white px-4 py-5 text-slate-900">
-      <Link
-        href="/workspace"
-        className="mb-8 flex items-center gap-3 px-2"
-        aria-label="Urania AI Agent home"
-      >
-        <Image
-          src="/logo.png"
-          alt="Urania AI Agent"
-          width={180}
-          height={180}
-          className="rounded-xl object-contain"
-          priority
-        />
-      </Link>
-
-      <Button className="mb-8 flex h-11 items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 text-sm font-medium text-white shadow-sm transition-colors hover:bg-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2">
-        <Plus className="size-4" strokeWidth={2.25} />
-        Create New Agent
-      </Button>
-
-      <div className="mb-3 px-2 text-xs font-semibold uppercase tracking-[0.1em] text-slate-400">
-        Your Agents
-      </div>
-      <nav
-        aria-label="Your agents"
-        className="min-h-0 flex-1 space-y-1 overflow-y-auto"
-      >
-        {agents.map((agent, index) => (
+    <Sidebar collapsible="icon" className="border-sidebar-border">
+      <SidebarHeader className="gap-4 px-3 py-4">
+        <div className="flex items-center justify-between gap-2">
           <Link
-            key={agent.name}
-            href={`/workspace/agents/${index + 1}`}
-            className="group flex items-center gap-3 rounded-xl px-2.5 py-2.5 text-sm text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300"
+            href="/workspace"
+            aria-label="Urania AI Agent home"
+            className=" group-data-[collapsible=icon]:hidden"
           >
-            <span
-              className={`flex size-8 shrink-0 items-center justify-center rounded-lg text-[11px] font-semibold ${agent.style}`}
-            >
-              {agent.initials}
-            </span>
-            <span className="truncate">{agent.name}</span>
-          </Link>
-        ))}
-        <div className="mt-4 flex items-center gap-2 px-2.5 py-2 text-xs text-slate-400">
-          <Sparkles className="size-3.5" />
-          Your AI workspace
-        </div>
-      </nav>
-
-      <div className="mt-4 border-t border-slate-200 pt-3">
-        <Link
-          href="/workspace/marketplace"
-          className="mb-3 flex items-center gap-3 rounded-xl px-2.5 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300"
-        >
-          <Compass className="size-[18px]" strokeWidth={1.8} />
-          Marketplace
-        </Link>
-        <div className="flex items-center gap-3 rounded-xl px-2.5 py-2.5">
-          {user?.image ? (
-            <span
-              role="img"
-              aria-label={`${displayName} avatar`}
-              className="size-[34px] shrink-0 rounded-full bg-cover bg-center"
-              style={{ backgroundImage: `url("${user.image}")` }}
+            <Image
+              src="/logo.png"
+              alt="Urania AI Agent"
+              width={180}
+              height={180}
+              className="w-auto object-contain object-left"
+              priority
             />
-          ) : (
-            <span className="flex size-[34px] shrink-0 items-center justify-center rounded-full bg-indigo-100 text-xs font-semibold text-indigo-700">
-              {initials || <Bot className="size-4" />}
-            </span>
-          )}
-          <span className="min-w-0 flex-1 truncate text-sm font-medium text-slate-700">
-            {displayName}
-          </span>
+          </Link>
+          <SidebarTrigger className="shrink-0" />
         </div>
-      </div>
-    </aside>
+        <SidebarMenu >
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              render={<Link href="/workspace/create-agent" />}
+              size="lg"
+              tooltip="Create New Agent"
+              className="bg-slate-900 text-white hover:bg-slate-700  hover:text-white active:bg-slate-800 active:text-white"
+            >
+              <Plus strokeWidth={2.25} />
+              <span>Create New Agent</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarHeader>
+
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupLabel>Your Agents</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {agents.map((agent, index) => (
+                <SidebarMenuItem key={agent.name}>
+                  <SidebarMenuButton
+                    render={<Link href={`/workspace/agents/${index + 1}`} />}
+                    tooltip={agent.name}
+                  >
+                    <span
+                      className={`flex size-6 shrink-0 items-center justify-center rounded-md text-[10px] font-semibold ${agent.style}`}
+                    >
+                      {agent.initials}
+                    </span>
+                    <span>{agent.name}</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+            <div className="mt-4 flex items-center gap-2 px-2 text-xs text-sidebar-foreground/50 group-data-[collapsible=icon]:hidden">
+              <Sparkles className="size-3.5" />
+              Your AI workspace
+            </div>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+
+      <SidebarFooter className="gap-2 px-3 py-3">
+        <SidebarSeparator className="mx-0 w-full" />
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              render={<Link href="/workspace/marketplace" />}
+              tooltip="Marketplace"
+            >
+              <Compass strokeWidth={1.8} />
+              <span>Marketplace</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              size="lg"
+              className="cursor-default hover:bg-sidebar-accent"
+            >
+              {user?.image ? (
+                <span
+                  role="img"
+                  aria-label={`${displayName} avatar`}
+                  className="size-8 shrink-0 rounded-full bg-cover bg-center"
+                  style={{ backgroundImage: `url("${user.image}")` }}
+                />
+              ) : (
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-xs font-semibold text-indigo-700">
+                  {initials || <Bot className="size-4" />}
+                </span>
+              )}
+              <span className="font-medium">{displayName}</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
+      <SidebarRail />
+    </Sidebar>
   );
 }
 

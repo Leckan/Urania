@@ -20,7 +20,7 @@ function Provider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  return <div>Provider{children}</div>;
+  return <div>{children}</div>;
 }
 
 export default Provider;
