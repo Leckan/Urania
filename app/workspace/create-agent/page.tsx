@@ -10,11 +10,15 @@ import {
   Leaf,
   MessageCircle,
   RefreshCw,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import axios from "axios";
+import { set } from "date-fns";
+import { useRouter } from "next/navigation";
 
 const avatars = [
   { Icon: Bot, color: "from-indigo-500 to-violet-500" },
@@ -26,12 +30,44 @@ const avatars = [
 ];
 
 export default function CreateAgentPage() {
-  const [avatarSeed, setAvatarSeed] = useState<string>();
+  const initialSeed = crypto.randomUUID();
+  const [avatarSeed, setAvatarSeed] = useState<string>(initialSeed);
+  const [description, setDescription] = useState<string>();
+  const [name, setName] = useState<string>("Helpful Assistant Agent");
+  const [image, setImage] = useState<string>(
+    `https://api.dicebear.com/10.x/clay/svg?tags=animation&seed=${initialSeed}`,
+  );
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const router = useRouter();
 
   function shuffleAvatar() {
     const seed = crypto.randomUUID();
     setAvatarSeed(seed);
+    setImage(
+      `https://api.dicebear.com/10.x/clay/svg?tags=animation&seed=${seed}`,
+    );
   }
+
+  const onClickCreateAgent = async (e: any) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    console.log({ name, description, avatarSeed, image });
+    try {
+      const result = await axios.post("/api/agent", {
+        name: name,
+        description: description,
+        avatarSeed: avatarSeed,
+        image: image,
+      });
+      console.log(result.data);
+
+      router.push("/workspace/" + result.data.agentConfig.id);
+    } catch (error) {
+      console.error("Error creating agent:", error);
+    }
+    setIsLoading(false);
+  };
 
   return (
     <div className="min-h-screen px-5 py-10 sm:px-8 sm:py-14">
@@ -49,7 +85,7 @@ export default function CreateAgentPage() {
         <form className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8">
           <section className="mb-8 flex flex-col items-center border-b border-slate-100 pb-8">
             <img
-              src={`https://api.dicebear.com/10.x/clay/svg?tags=animation&seed=${avatarSeed}`}
+              src={image}
               alt="avatar"
               className={`flex size-32 items-center justify-center rounded-[2rem] bg-gradient-to-br shadow-lg shadow-slate-900/10 ring-1 ring-black/5`}
             />
@@ -75,6 +111,7 @@ export default function CreateAgentPage() {
                 placeholder="e.g. Research Assistant"
                 required
                 className="h-11 rounded-lg border-slate-200 px-3"
+                onChange={(event) => setName(event.target.value)}
               />
             </div>
 
@@ -91,23 +128,28 @@ export default function CreateAgentPage() {
                 placeholder="Describe what this agent will help you with..."
                 rows={4}
                 className="min-h-28 resize-y rounded-lg border-slate-200 px-3 py-2.5"
+                onChange={(event) => setDescription(event.target.value)}
               />
             </div>
           </div>
 
           <div className="mt-8 flex flex-col-reverse gap-3 border-t border-slate-100 pt-6 sm:flex-row sm:justify-end">
-            <Button
-              render={<Link href="/workspace" />}
-              variant="outline"
-              className="h-10 rounded-lg px-5"
-            >
-              Cancel
-            </Button>
+            <Link href="/workspace">
+              <Button variant="outline" className="h-10 rounded-lg px-5">
+                Cancel
+              </Button>
+            </Link>
             <Button
               type="submit"
               className="h-10 rounded-lg bg-slate-900 px-5 text-white hover:bg-slate-700"
+              onClick={onClickCreateAgent}
+              disabled={isLoading}
             >
-              Create Agent
+              {isLoading ? (
+                <Loader2 className="animate-spin" />
+              ) : (
+                "Create Agent"
+              )}
             </Button>
           </div>
         </form>
