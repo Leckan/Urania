@@ -19,25 +19,11 @@ import {
   SidebarSeparator,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-
-const agents = [
-  {
-    name: "Research Assistant",
-    initials: "RA",
-    style: "bg-violet-100 text-violet-700",
-  },
-  {
-    name: "Writing Partner",
-    initials: "WP",
-    style: "bg-amber-100 text-amber-700",
-  },
-  {
-    name: "Code Reviewer",
-    initials: "CR",
-    style: "bg-emerald-100 text-emerald-700",
-  },
-  { name: "Travel Planner", initials: "TP", style: "bg-sky-100 text-sky-700" },
-];
+import { useEffect, useState } from "react";
+import { fetch } from "inngest";
+import axios from "axios";
+import { AgentConfigType } from "@/type/Agent";
+import { usePathname } from "next/navigation";
 
 function AppSidebar() {
   const { data } = useSession();
@@ -50,6 +36,19 @@ function AppSidebar() {
     .slice(0, 2)
     .map((part) => part[0]?.toUpperCase())
     .join("");
+
+  const [agents, setAgents] = useState<AgentConfigType[]>([]);
+
+  const GetUserAgents = async () => {
+    const result = await axios.get("/api/agent");
+    console.log(result.data);
+    setAgents(result.data.agentConfigs);
+  };
+
+  const path = usePathname();
+  useEffect(() => {
+    GetUserAgents();
+  }, [path]);
 
   return (
     <Sidebar collapsible="icon" className="border-sidebar-border">
@@ -71,7 +70,7 @@ function AppSidebar() {
           </Link>
           <SidebarTrigger className="shrink-0" />
         </div>
-        <SidebarMenu >
+        <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
               render={<Link href="/workspace/create-agent" />}
@@ -92,22 +91,20 @@ function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {agents.map((agent, index) => (
-                <SidebarMenuItem key={agent.name}>
+                <SidebarMenuItem key={agent.name} className=" flex items-center py-2">
                   <SidebarMenuButton
-                    render={<Link href={`/workspace/agents/${index + 1}`} />}
-                    tooltip={agent.name}
+                    render={<Link href={`/workspace/${agent.id}`} />}
+                    tooltip={agent.description}
                   >
-                    <span
-                      className={`flex size-6 shrink-0 items-center justify-center rounded-md text-[10px] font-semibold ${agent.style}`}
-                    >
-                      {agent.initials}
+                    <span className="size-16 ">
+                      <img src={agent.image} alt="avatar"  />
                     </span>
-                    <span>{agent.name}</span>
+                    <span className="font-semibold">{agent.name}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
-            <div className="mt-4 flex items-center gap-2 px-2 text-xs text-sidebar-foreground/50 group-data-[collapsible=icon]:hidden">
+            <div className="mt-4 flex items-center gap-2 px-2 text-sm text-sidebar-foreground/50 group-data-[collapsible=icon]:hidden">
               <Sparkles className="size-3.5" />
               Your AI workspace
             </div>
